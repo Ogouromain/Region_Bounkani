@@ -1,0 +1,1228 @@
+<html><head><base href="/">
+<title>Gestion Personnel Administratif - Région du Bounkani</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --user-color: #ff7b25;
+  --admin-color: #2ecc71;
+  --secondary-color: #34495e;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f6fa;
+}
+
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.dashboard {
+  display: none;
+  padding: 20px;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--secondary-color);
+  font-weight: bold;
+}
+
+.admin-theme .page-title {
+  color: #ff7b25; /* Orange for admin */
+}
+
+.user-theme .page-title {
+  color: #2ecc71; /* Green for user */
+}
+
+.nav-tabs .nav-link {
+  color: var(--secondary-color);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 0;
+  position: relative;
+}
+
+.nav-tabs .nav-link.active {
+  background: transparent;
+}
+
+.user-theme .nav-tabs .nav-link.active {
+  color: var(--user-color);
+  border-bottom: 3px solid var(--user-color);
+}
+
+.user-theme .btn-primary {
+  background-color: var(--user-color);
+  border-color: var(--user-color);
+}
+
+.user-theme .btn-primary:hover {
+  background-color: #e66b1c;
+  border-color: #e66b1c;
+}
+
+.admin-theme .nav-tabs .nav-link.active {
+  color: var(--admin-color);
+  border-bottom: 3px solid var(--admin-color);
+}
+
+.admin-theme .btn-primary {
+  background-color: var(--admin-color);
+  border-color: var(--admin-color);
+}
+
+.admin-theme .btn-primary:hover {
+  background-color: #27ae60;
+  border-color: #27ae60;
+}
+
+.action-buttons {
+  margin: 15px 0;
+}
+
+.action-btn {
+  margin-right: 10px;
+  border-radius: 20px;
+  padding: 8px 20px;
+}
+
+.form-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.home-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.data-table {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.table th {
+  background-color: #f8f9fa;
+}
+
+.action-cell {
+  white-space: nowrap;
+}
+
+.dashboard-stats .card {
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 10px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--secondary-color);
+  margin-top: 10px;
+}
+
+.stat-item h6 {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.user-theme .btn-success,
+.user-theme .btn-info,
+.user-theme .data-table {
+  display: none !important;
+}
+
+/* Ajout de règles CSS pour la responsivité */
+@media (max-width: 768px) {
+  /* Ajustements pour tablettes et téléphones */
+  .login-container {
+    max-width: 100%;
+    margin: 20px;
+    padding: 1rem;
+  }
+
+  .dashboard {
+    padding: 10px;
+  }
+
+  .nav-tabs {
+    flex-wrap: wrap;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 100%;
+    text-align: left;
+    margin: 2px 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .action-btn {
+    width: 100%;
+    margin: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .form-container {
+    padding: 10px;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .col-md-6 {
+    padding: 0 5px;
+  }
+
+  .home-btn {
+    position: static;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+/* Ajustements pour les très petits écrans */
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 20px;
+  }
+
+  .login-container {
+    margin: 10px;
+  }
+
+  .nav-tabs .nav-link {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* Ajustements pour assurer la lisibilité des tableaux sur mobile */
+.table {
+  min-width: 800px; /* Assure une largeur minimum pour le défilement horizontal */
+}
+
+/* Wrapper pour les tableaux */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-container">
+  <h2 class="text-center mb-4">GESTION DU PERSONNEL, REGION DU BOUNKANI</h2>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label class="form-label">Type d'utilisateur</label>
+      <select class="form-select" id="userType">
+        <option value="user">Utilisateur</option>
+        <option value="admin">Administrateur</option>
+      </select>
+    </div>
+    <div class="mb-3" id="passwordField" style="display:none;">
+      <label class="form-label">Mot de passe</label>
+      <input type="password" class="form-control" id="password">
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Connexion</button>
+  </form>
+</div>
+
+<div id="dashboard" class="dashboard">
+  <h1 class="page-title">GESTION DU PERSONNEL, REGION DU BOUNKANI</h1>
+  
+  <button class="btn btn-secondary home-btn" onclick="returnToLogin()">
+    <i class="fas fa-home"></i> Menu d'accueil
+  </button>
+
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#corps-prefectoral">AUTORITE PREFECTORALE</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#directeurs">DIRECTEURS RÉGIONAUX</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#administrations">ADMINISTRATIONS</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#elus">ÉLUS LOCAUX</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#religieux">CHEFS RELIGIEUX</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#associations">ASSOCIATIONS</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ong">ORGANISMES & ONG</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tableau">TABLEAU DE BORD</button>
+    </div>
+  </nav>
+
+  <div class="tab-content mt-3">
+    <div class="tab-pane fade show active" id="corps-prefectoral">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('prefectoral')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('prefectoral')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('prefectoral')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="prefectoral-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="prefectoral-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Fonction</th>
+              <th>Grade</th>
+              <th>Date de prise de service</th>
+              <th>Matricule</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="directeurs">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('directeurs')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('directeurs')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('directeurs')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="directeurs-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="directeurs-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Matricule</th>
+              <th>Fonction</th>
+              <th>Grade</th>
+              <th>Emploi</th>
+              <th>Date de prise de service</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="administrations">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('administrations')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('administrations')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('administrations')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="administrations-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="administrations-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Fonction</th>
+              <th>Grade</th>
+              <th>Emploi</th>
+              <th>Date de prise de service</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="elus">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('elus')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('elus')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('elus')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="elus-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="elus-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Fonction</th>
+              <th>Date de prise de service</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="religieux">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('religieux')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('religieux')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('religieux')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="religieux-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="religieux-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Confession religieuse</th>
+              <th>Fonction</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="associations">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('associations')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('associations')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('associations')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="associations-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="associations-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Fonction</th>
+              <th>Nom de l'association</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="ong">
+      <div class="action-buttons">
+        <button class="btn btn-primary action-btn" onclick="showAddForm('ong')">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button class="btn btn-success action-btn" onclick="exportToExcel('ong')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+        <button class="btn btn-info action-btn" onclick="printData('ong')">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+      <div class="form-container" id="ong-form" style="display:none;">
+      </div>
+      <div class="data-table table-wrapper">
+        <table class="table table-striped" id="ong-table">
+          <thead>
+            <tr>
+              <th>Nom et Prénoms</th>
+              <th>Fonction</th>
+              <th>Nom de l'organisme</th>
+              <th>Contacts</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="tableau">
+      <div class="dashboard-stats">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Statistiques Numériques</h5>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <h6>CORPS PREFECTORAL</h6>
+                    <div class="stat-value" id="stat-prefectoral">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>DIRECTEURS REGIONAUX</h6>
+                    <div class="stat-value" id="stat-directeurs">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>ADMINISTRATIONS</h6>
+                    <div class="stat-value" id="stat-administrations">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>ELUS LOCAUX</h6>
+                    <div class="stat-value" id="stat-elus">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>CHEFS RELIGIEUX</h6>
+                    <div class="stat-value" id="stat-religieux">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>ASSOCIATIONS</h6>
+                    <div class="stat-value" id="stat-associations">0</div>
+                  </div>
+                  <div class="stat-item">
+                    <h6>ORGANISMES & ONG</h6>
+                    <div class="stat-value" id="stat-ong">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Répartition Graphique</h5>
+                <canvas id="statsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let isAdmin = false;
+let currentEditId = null;
+
+const database = {
+  prefectoral: [],
+  directeurs: [],
+  administrations: [],
+  elus: [],
+  religieux: [],
+  associations: [],
+  ong: []
+};
+
+document.getElementById('userType').addEventListener('change', function() {
+  const passwordField = document.getElementById('passwordField');
+  passwordField.style.display = this.value === 'admin' ? 'block' : 'none';
+});
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const userType = document.getElementById('userType').value;
+  const password = document.getElementById('password').value;
+
+  if (userType === 'admin' && password !== 'PrefectureBouna') {
+    alert('Mot de passe incorrect');
+    return;
+  }
+
+  isAdmin = userType === 'admin';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  
+  const dashboard = document.getElementById('dashboard');
+  dashboard.classList.add(isAdmin ? 'admin-theme' : 'user-theme');
+
+  // Add this new code to hide elements for non-admin users
+  const exportButtons = document.querySelectorAll('.btn-success'); // Export buttons
+  const printButtons = document.querySelectorAll('.btn-info');     // Print buttons 
+  const dataTables = document.querySelectorAll('.data-table');     // Data tables
+
+  exportButtons.forEach(btn => {
+    btn.style.display = isAdmin ? 'inline-block' : 'none';
+  });
+  
+  printButtons.forEach(btn => {
+    btn.style.display = isAdmin ? 'inline-block' : 'none'; 
+  });
+
+  dataTables.forEach(table => {
+    table.style.display = isAdmin ? 'block' : 'none';
+  });
+
+  loadData();
+});
+
+// ... rest of existing code ...
+
+function showAddForm(type, id = null) {
+  const formContainer = document.getElementById(`${type}-form`);
+  currentEditId = id;
+  
+  let data = null;
+  if (id !== null) {
+    data = database[type].find(item => item.id === id);
+  }
+  
+  let formFields;
+  if (type === 'administrations') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Grade</label>
+          <input type="text" class="form-control" name="grade" value="${data?.grade || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Emploi</label>
+          <input type="text" class="form-control" name="emploi" value="${data?.emploi || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date de prise de service</label>
+          <input type="date" class="form-control" name="dateService" value="${data?.dateService || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else if (type === 'directeurs') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Matricule</label>
+          <input type="text" class="form-control" name="matricule" value="${data?.matricule || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Grade</label>
+          <input type="text" class="form-control" name="grade" value="${data?.grade || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Emploi</label>
+          <input type="text" class="form-control" name="emploi" value="${data?.emploi || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date de prise de service</label>
+          <input type="date" class="form-control" name="dateService" value="${data?.dateService || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else if (type === 'elus') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date de prise de service</label>
+          <input type="date" class="form-control" name="dateService" value="${data?.dateService || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else if (type === 'religieux') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Confession religieuse</label>
+          <input type="text" class="form-control" name="confession" value="${data?.confession || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else if (type === 'associations') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom de l'association</label>
+          <input type="text" class="form-control" name="association" value="${data?.association || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else if (type === 'ong') {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom de l'organisme</label>
+          <input type="text" class="form-control" name="organisme" value="${data?.organisme || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  } else {
+    formFields = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nom et Prénoms</label>
+          <input type="text" class="form-control" name="fullName" value="${data?.fullName || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fonction</label>
+          <input type="text" class="form-control" name="fonction" value="${data?.fonction || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Grade</label>
+          <input type="text" class="form-control" name="grade" value="${data?.grade || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date de prise de service</label>
+          <input type="date" class="form-control" name="dateService" value="${data?.dateService || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Matricule</label>
+          <input type="text" class="form-control" name="matricule" value="${data?.matricule || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacts</label>
+          <input type="tel" class="form-control" name="contacts" value="${data?.contacts || ''}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="${data?.email || ''}" required>
+        </div>
+      </div>
+    `;
+  }
+  
+  const formHTML = `
+    <form id="add-${type}-form" onsubmit="saveData('${type}', event)">
+      ${formFields}
+      <button type="submit" class="btn btn-primary">${id !== null ? 'Modifier' : 'Enregistrer'}</button>
+      <button type="button" class="btn btn-secondary" onclick="hideForm('${type}')">Annuler</button>
+    </form>
+  `;
+  
+  formContainer.innerHTML = formHTML;
+  formContainer.style.display = 'block';
+}
+
+function hideForm(type) {
+  document.getElementById(`${type}-form`).style.display = 'none';
+  currentEditId = null;
+}
+
+function saveData(type, event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const data = {
+    id: currentEditId || Date.now(),
+    fullName: formData.get('fullName'),
+    matricule: formData.get('matricule'),
+    fonction: formData.get('fonction'),
+    grade: formData.get('grade'),
+    dateService: formData.get('dateService'),
+    contacts: formData.get('contacts'),
+    email: formData.get('email')
+  };
+
+  if (type === 'directeurs') {
+    data.emploi = formData.get('emploi');
+  } else if (type === 'religieux') {
+    data.confession = formData.get('confession');
+  } else if (type === 'associations') {
+    data.association = formData.get('association');
+  } else if (type === 'ong') {
+    data.organisme = formData.get('organisme');
+  }
+  
+  if (currentEditId) {
+    const index = database[type].findIndex(item => item.id === currentEditId);
+    if (index !== -1) {
+      database[type][index] = data;
+    }
+  } else {
+    database[type].push(data);
+  }
+  
+  hideForm(type);
+  displayData(type);
+  saveToLocalStorage();
+  updateDashboard(); // Add this line
+}
+
+function displayData(type) {
+  const tbody = document.querySelector(`#${type}-table tbody`);
+  tbody.innerHTML = '';
+  
+  database[type].forEach(item => {
+    const tr = document.createElement('tr');
+    if (type === 'administrations') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.fonction}</td>
+        <td>${item.grade}</td>
+        <td>${item.emploi}</td>
+        <td>${item.dateService}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else if (type === 'directeurs') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.matricule}</td>
+        <td>${item.fonction}</td>
+        <td>${item.grade}</td>
+        <td>${item.emploi}</td>
+        <td>${item.dateService}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else if (type === 'elus') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.fonction}</td>
+        <td>${item.dateService}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else if (type === 'religieux') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.confession}</td>
+        <td>${item.fonction}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else if (type === 'associations') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.fonction}</td>
+        <td>${item.association}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else if (type === 'ong') {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.fonction}</td>
+        <td>${item.organisme}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    } else {
+      tr.innerHTML = `
+        <td>${item.fullName}</td>
+        <td>${item.fonction}</td>
+        <td>${item.grade}</td>
+        <td>${item.dateService}</td>
+        <td>${item.matricule}</td>
+        <td>${item.contacts}</td>
+        <td>${item.email}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-warning" onclick="showAddForm('${type}', ${item.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData('${type}', ${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteData(type, id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cet enregistrement ?')) {
+    database[type] = database[type].filter(item => item.id !== id);
+    displayData(type);
+    saveToLocalStorage();
+    updateDashboard(); // Add this line
+  }
+}
+
+function exportToExcel(type) {
+  const data = database[type].map(item => ({
+    'Nom et Prénoms': item.fullName,
+    'Fonction': item.fonction,
+    'Grade': item.grade,
+    'Emploi': item.emploi || '',
+    'Date de service': item.dateService,
+    'Matricule': item.matricule,
+    'Contacts': item.contacts,
+    'Email': item.email,
+    'Confession': item.confession || '',
+    'Nom de l\'association': item.association || '',
+    'Nom de l\'organisme': item.organisme || ''
+  }));
+  
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Data");
+  XLSX.writeFile(wb, `${type}_export.xlsx`);
+}
+
+function printData(type) {
+  const printWindow = window.open('', '', 'height=600,width=800');
+  const table = document.getElementById(`${type}-table`).cloneNode(true);
+  
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Impression</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      </head>
+      <body>
+        <h1 class="text-center">${type === 'directeurs' ? 'DIRECTEURS - REGION DU BOUNKANI' : type === 'elus' ? 'ÉLUS LOCAUX - REGION DU BOUNKANI' : type === 'religieux' ? 'CHEFS RELIGIEUX - REGION DU BOUNKANI' : type === 'associations' ? 'ASSOCIATIONS - REGION DU BOUNKANI' : type === 'ong' ? 'ORGANISMES & ONG - REGION DU BOUNKANI' : 'CORPS PREFECTORAL - REGION DU BOUNKANI'}</h1>
+        ${table.outerHTML}
+      </body>
+    </html>
+  `);
+  
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+
+function saveToLocalStorage() {
+  localStorage.setItem('databaseBackup', JSON.stringify(database));
+}
+
+function loadData() {
+  const savedData = localStorage.getItem('databaseBackup');
+  if (savedData) {
+    Object.assign(database, JSON.parse(savedData));
+    displayData('prefectoral');
+    displayData('directeurs');
+    displayData('administrations');
+    displayData('elus');
+    displayData('religieux');
+    displayData('associations');
+    displayData('ong');
+    updateDashboard(); // Add this line
+  }
+}
+
+window.addEventListener('load', loadData);
+window.addEventListener('beforeunload', saveToLocalStorage);
+
+function returnToLogin() {
+  if (confirm('Voulez-vous vraiment retourner au menu d\'accueil ?')) {
+    const dashboard = document.getElementById('dashboard');
+    dashboard.style.display = 'none';
+    dashboard.classList.remove('admin-theme', 'user-theme');
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('loginForm').reset();
+    document.getElementById('passwordField').style.display = 'none';
+    isAdmin = false;
+  }
+}
+
+function updateDashboard() {
+  // Update numerical stats
+  document.getElementById('stat-prefectoral').textContent = database.prefectoral.length;
+  document.getElementById('stat-directeurs').textContent = database.directeurs.length;
+  document.getElementById('stat-administrations').textContent = database.administrations.length;
+  document.getElementById('stat-elus').textContent = database.elus.length;
+  document.getElementById('stat-religieux').textContent = database.religieux.length;
+  document.getElementById('stat-associations').textContent = database.associations.length;
+  document.getElementById('stat-ong').textContent = database.ong.length;
+
+  // Update chart
+  const canvas = document.getElementById('statsChart');
+  const ctx = canvas.getContext('2d');
+  
+  // Clear the canvas first
+  canvas.width = canvas.width;
+  
+  // Create new chart
+  const chartConfig = {
+    type: 'bar',
+    data: {
+      labels: [
+        'Corps Préfectoral',
+        'Directeurs Régionaux',
+        'Administrations',
+        'Elus Locaux', 
+        'Chefs Religieux',
+        'Associations',
+        'Organismes & ONG'
+      ],
+      datasets: [{
+        label: 'Nombre d\'enregistrements',
+        data: [
+          database.prefectoral.length,
+          database.directeurs.length,
+          database.administrations.length,
+          database.elus.length,
+          database.religieux.length,
+          database.associations.length,
+          database.ong.length
+        ],
+        backgroundColor: [
+          '#ff7b25',
+          '#2ecc71', 
+          '#3498db',
+          '#e74c3c',
+          '#9b59b6',
+          '#f1c40f',
+          '#1abc9c'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      }
+    }
+  };
+
+  // Destroy existing chart if it exists
+  if (window.statsChart instanceof Chart) {
+    window.statsChart.destroy();
+  }
+
+  // Create new chart
+  window.statsChart = new Chart(ctx, chartConfig);
+}
+</script>
+</body></html>
